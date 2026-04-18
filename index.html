@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Physics master lab</title>
+    <link rel="stylesheet" href="app.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+            
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <h1>Physics Master Lab</h1>
+            <button class="nav-btn active" data-target="lab-carnot">Thermodynamics</button>
+            <button class="nav-btn" data-target="lab-bridge">Wheatstone Bridge</button>
+            <button class="nav-btn" data-target="lab-diode">PN Junction Diode</button>
+        </aside>
+        <main class="main">
+            <section id="lab-carnot" class="lab active">
+                <h2>Carnot Cycle(PV Diagram)</h2>
+                <canvas id="carnotCanvas" width="900" height="450"></canvas>
+
+                <div class="controls">
+                    <label>Source Temp Th(K):
+                        <input type="range" id="thslider" min="350" max="900" value="600" />
+                    </label>
+                    <span id="th-value">600</span>
+                    <label>Sink Temp Tc(K):
+                        <input type="range" id="tcslider" min="250" max="500" value="300" />
+                    </label>
+                    <span id="tc-value">300</span>
+                </div>
+                <div id="carnotOutput" class="output">
+                </div>
+                <div class="note">
+                    <h3>Concept Note</h3>
+                    <p>
+                For an ideal Carnot engine, efficiency is &eta; = \(1- \frac{T_c}{T_h} \). 
+                Higher \( T_h \) and lower \( T_c \) increase efficiency.
+                </p>
+
+                </div>
+            </section>
+            <section id="lab-bridge" class="lab">
+                <h2>Wheatstone Bridge</h2>
+                <canvas id="bridgeCanvas" width="900" height="450"></canvas>
+                <div class="controls">
+                    <label>Rx(Ω):
+                        <input type="range" id="rxslider" min="10" max="1000" value="200" />
+                    </label>
+                    <span id="rx-value">200</span>
+                </div>
+                <div id="bridgeOutput" class="output">
+                </div>
+                <div class="note">
+                    <h3>Concept Note</h3>
+                    <p>Balanced bridge condition:   
+                        <p>
+                         \frac{R1}{R2} = \frac{R3}{Rx} gives Vout near zero and galvanometer shows null
+                        deflection.</p>
+                </div>
+            </section>
+            <section id="lab-diode" class="lab">
+                <h2>PN Junction Diode I-V Characteristics</h2>
+                <canvas id="diodeCanvas" width="900" height="450"></canvas>
+                <div class="controls">
+                    <label>Bias Mode:
+                        <button id="forwardBtn" class="mode-btn active">Forward</button>
+                        <button id="reverseBtn" class="mode-btn">Reverse</button>
+                    </label>
+                </div>
+                <div id="diodeOutput" class="output"></div>
+                <div class="note">
+                    <h3>Concept Note</h3>
+
+                    <p>Forward bias reduces barrier and increases current rapidly after threshold. Reverse bias widens
+                        depletion region and keeps current very small.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
+
+
+
+
