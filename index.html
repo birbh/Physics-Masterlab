@@ -22,22 +22,7 @@
         <main class="main">
             <section id="lab-carnot" class="lab active">
                 <h2>Carnot Cycle(PV Diagram)</h2>
-                <canvas id="carnotCanvas" width="900" height="450"></canvas>
-
-                
-
-                <div class="controls">
-                    <label>Source Temp Th(K):
-                        <input type="range" id="thslider" min="350" max="900" value="600" />
-                    </label>
-                    <span id="th-value">600</span>
-                    <label>Sink Temp Tc(K):
-                        <input type="range" id="tcslider" min="250" max="500" value="300" />
-                    </label>
-                    <span id="tc-value">300</span>
-                </div>
-                <div id="carnotOutput" class="output">
-                </div>
+                <iframe class="geogebra-frame" src="https://www.geogebra.org/classic/n7zkhneh?embed" width="800" height="600" allowfullscreen style="border: 1px solid #e4e4e4;border-radius: 4px;" frameborder="0"></iframe>
                 <div class="note">
                     <h3>Concept Note</h3>
                     <p>
@@ -49,21 +34,18 @@
             </section>
             <section id="lab-bridge" class="lab">
                 <h2>Wheatstone Bridge</h2>
-                <canvas id="bridgeCanvas" width="900" height="450"></canvas>
+                <svg id="bridgeSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450" style="background:#0b0f15;border:1px solid #273244;border-radius:10px;margin-bottom:14px;display:block;"></svg>
                 <div class="controls">
-                    <label>Rx(Ω):
-                        <input type="range" id="rxslider" min="10" max="1000" value="200" />
+                    <label>Rx (Ω):
+                        <input type="range" id="rxSlider" min="10" max="1000" value="200" />
                     </label>
-                    <span id="rx-value">200</span>
+                    <span id="rxValue">200</span>
                 </div>
                 <div id="bridgeOutput" class="output">
                 </div>
                 <div class="note">
                     <h3>Concept Note</h3>
-                    <p>Balanced bridge condition:   
-                        <p>
-                         \frac{R1}{R2} = \frac{R3}{Rx} gives Vout near zero and galvanometer shows null
-                        deflection.</p>
+                    <p>Balanced bridge condition: R1/R2 = R3/Rx gives Vout near zero and the galvanometer shows null deflection.</p>
                 </div>
             </section>
             <section id="lab-diode" class="lab">
@@ -89,7 +71,6 @@
 </body>
 
 </html>
-
 
 
 

@@ -8,187 +8,147 @@ navButtons.forEach(btn=>{
         document.getElementById(btn.dataset.target).classList.add('active');
     });
 });
-const thSlider=document.getElementById('thslider');
-const tcSlider=document.getElementById('tcslider');
-const thValue=document.getElementById('thvalue');
-const tcValue=document.getElementById('tcvalue');
-thSlider.addEventListener('input',()=>{
-    thValue.textContent=thSlider.value;
-});
-tcSlider.addEventListener('input',()=>{
-    tcValue.textContent=tcSlider.value;
-});
-const rxSlider=document.getElementById('rxslider');
-const rxValue=document.getElementById('rxvalue');
-rxSlider.addEventListener('input',()=>{
-    rxValue.textContent=rxSlider.value;
-});
+const rxSlider=document.getElementById('rxSlider');
+const rxValue=document.getElementById('rxValue');
+const bridgeSvg=document.getElementById('bridgeSvg');
+const bridgeOutput=document.getElementById('bridgeOutput');
+
+function renderBridge(){
+    const rx=Number(rxSlider.value);
+
+    const vin=5;
+    const r1=100;
+    const r2=100;
+    const r3=100;
+    const balanceRx=(r2*r3)/r1;
+    const vout=vin*((r2/(r1+r2))-(rx/(r3+rx)));
+    const balanceError=rx-balanceRx;
+    const needleAngle=Math.max(-0.55,Math.min(0.55,vout*0.25));
+
+    const width=900;
+    const height=450;
+    const A={x:220,y:120};
+    const B={x:720,y:120};
+    const C={x:220,y:330};
+    const D={x:720,y:330};
+    const M={x:470,y:225};
+    const T={x:470,y:120};
+    const N={x:470,y:330};
+
+    const resistorTopLeft=svgResistor(A.x,A.y, T.x,A.y);
+    const resistorTopRight=svgResistor(T.x,B.y, B.x,B.y);
+    const resistorBottomLeft=svgResistor(C.x,C.y, N.x,C.y);
+    const resistorBottomRight=svgResistor(N.x,D.y, D.x,D.y);
+    const needleX=M.x;
+    const needleY=M.y;
+    const needleLen=18;
+    const armGap=35;
+    const balanceAngleDeg=needleAngle*180/Math.PI;
+
+    bridgeSvg.innerHTML = `
+      <defs>
+        <marker id="bridgeArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#00e5ff"></path>
+        </marker>
+        <marker id="smallArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#ff4d6d"></path>
+        </marker>
+      </defs>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#0b0f15" rx="10"></rect>
+
+      <text x="65" y="190" fill="#ffb300" font-family="Space Grotesk, sans-serif" font-size="20">Vin</text>
+      <line x1="120" y1="150" x2="120" y2="290" stroke="#ffb300" stroke-width="3"></line>
+      <rect x="112" y="180" width="18" height="8" fill="#ffffff"></rect>
+      <rect x="108" y="206" width="34" height="8" fill="#ffffff"></rect>
+
+      <polyline points="120,150 120,120 ${A.x},${A.y}" fill="none" stroke="#ffb300" stroke-width="3"></polyline>
+      <polyline points="120,290 120,390 ${D.x},390 ${D.x},${D.y}" fill="none" stroke="#ffb300" stroke-width="3"></polyline>
+
+      <line x1="${A.x}" y1="${A.y}" x2="${C.x}" y2="${C.y}" stroke="#cfd8e3" stroke-width="3"></line>
+      <line x1="${B.x}" y1="${B.y}" x2="${D.x}" y2="${D.y}" stroke="#cfd8e3" stroke-width="3"></line>
+
+      <circle cx="${A.x}" cy="${A.y}" r="5" fill="#00e5ff"></circle>
+      <circle cx="${B.x}" cy="${B.y}" r="5" fill="#00e5ff"></circle>
+      <circle cx="${C.x}" cy="${C.y}" r="5" fill="#00e5ff"></circle>
+      <circle cx="${D.x}" cy="${D.y}" r="5" fill="#00e5ff"></circle>
+    <circle cx="${T.x}" cy="${T.y}" r="5" fill="#00e5ff"></circle>
+    <circle cx="${N.x}" cy="${N.y}" r="5" fill="#00e5ff"></circle>
+      <circle cx="${M.x}" cy="${M.y}" r="5" fill="#00e5ff"></circle>
+
+      <path d="${resistorTopLeft}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorTopRight}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorBottomLeft}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorBottomRight}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+
+    <line x1="${T.x}" y1="${T.y}" x2="${M.x}" y2="${M.y-armGap}" stroke="#ff4d6d" stroke-width="3"></line>
+    <line x1="${M.x}" y1="${M.y+armGap}" x2="${N.x}" y2="${N.y}" stroke="#ff4d6d" stroke-width="3"></line>
+      <circle cx="${M.x}" cy="${M.y}" r="28" fill="#0f141d" stroke="#ff4d6d" stroke-width="3"></circle>
+      <text x="${M.x-8}" y="${M.y+6}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">G</text>
+      <line x1="${M.x}" y1="${M.y}" x2="${M.x + needleLen*Math.cos(needleAngle)}" y2="${M.y + needleLen*Math.sin(needleAngle)}" stroke="#00e5ff" stroke-width="3"></line>
+
+      <text x="${A.x-16}" y="${A.y-12}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">A</text>
+      <text x="${B.x+8}" y="${B.y-12}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">B</text>
+      <text x="${C.x-16}" y="${C.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">C</text>
+      <text x="${D.x+8}" y="${D.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">D</text>
+
+      <text x="${A.x+74}" y="${A.y-14}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R1</text>
+      <text x="${B.x-46}" y="${B.y-14}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R2</text>
+      <text x="${C.x+74}" y="${C.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R3</text>
+      <text x="${D.x-46}" y="${D.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">Rx</text>
+
+      <text x="${M.x-48}" y="${M.y-38}" fill="#ff4d6d" font-family="Space Grotesk, sans-serif" font-size="16">Galvanometer</text>
+    `;
+
+    // Balance indicator
+    const balanced=Math.abs(vout)<0.01;
+    bridgeOutput.innerHTML=
+        'Vin = '+vin.toFixed(2)+' V | R1 = '+r1+' Ω | R2 = '+r2+' Ω | R3 = '+r3+' Ω | Rx = '+rx+' Ω | Vout = '+vout.toFixed(4)+' V | '+
+        (balanced ? '<span style="color:#39ff14">Balanced: galvanometer at zero</span>' : '<span style="color:#ffb300">Unbalanced: needle deflects</span>')+
+        '<br>Balance Rx = '+balanceRx.toFixed(2)+' Ω | Error = '+balanceError.toFixed(2)+' Ω';
+}
+
+function svgResistor(x1,y1,x2,y2){
+    const steps=8;
+    const lead=30;
+    const startX=x1+lead;
+    const endX=x2-lead;
+    const width=endX-startX;
+    const amp=14;
+    let d=`M ${x1} ${y1} L ${startX} ${y1}`;
+    for(let i=0;i<steps;i++){
+        const t0=startX + (width/steps)*i;
+        const t1=startX + (width/steps)*(i+0.5);
+        const t2=startX + (width/steps)*(i+1);
+        const yA = i%2===0 ? y1-amp : y1+amp;
+        d += ` L ${t1} ${yA} L ${t2} ${y1}`;
+    }
+    d += ` L ${x2} ${y2}`;
+    return d;
+}
+
+if(rxSlider && rxValue && bridgeSvg){
+    rxSlider.addEventListener('input',()=>{
+        rxValue.textContent=rxSlider.value;
+        renderBridge();
+    });
+}
 const forwardBtn=document.getElementById('forwardBtn');
 const reverseBtn=document.getElementById('reverseBtn');
-forwardBtn.addEventListener("click",()=>{
-    forwardBtn.classList.add("active");
-    reverseBtn.classList.remove("active");
-});
-reverseBtn.addEventListener("click",()=>{
-    reverseBtn.classList.add("active");
-    forwardBtn.classList.remove("active");
-});
-
-//carnot
-const carnotCanvas=document.getElementById('carnotCanvas');
-const cctx=carnotCanvas.getContext('2d');
-const carnotOutput=document.getElementById('carnotOutput');
-const gamma=1.4;
-function drawAxes(ctx,w,h,pad,xLabel,yLabel){
-    ctx.strokeStyle='#8ea3b8';
-    ctx.lineWidth=1.2;
-    ctx.beginPath();
-    ctx.moveTo(pad, h - pad);
-    ctx.lineTo(w - pad, h - pad);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(pad, h - pad);
-    ctx.lineTo(pad, pad);
-    ctx.stroke();
-
-    ctx.fillStyle='#d6deea';
-    ctx.font='14px Arial';
-    ctx.fillText(xLabel,w - pad - 80,h - pad +28);
-
-    ctx.save();
-    ctx.translate(pad - 38, pad + 12);
-    ctx.rotate(-Math.PI/2);
-    ctx.fillText(yLabel,0,0);
-    ctx.restore();
-}
-function drawGrid(ctx,w,h,pad){
-  ctx.strokeStyle = "rgba(120,140,170,0.16)";
-  ctx.lineWidth = 1;
-  const lines=8;
-  for(let i=1;i<=lines;i++){
-    const x=pad+(i*(w-2*pad)/lines);
-    const y=pad+(i*(h-2*pad)/lines);
-    ctx.beginPath();
-    ctx.moveTo(x,pad);
-    ctx.lineTo(x,h-pad);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(pad,y);
-    ctx.lineTo(w-pad,y);
-    ctx.stroke();
-  }
-}
-
-function mapToCanvas(v,p,bounds,w,h,pad){
-    const x=pad+((v-bounds.vMin)/(bounds.vMax-bounds.vMin))*(w-2*pad);
-    const y=h-pad-((p-bounds.pMin)/(bounds.pMax-bounds.pMin))*(h-2*pad);
-    return{x,y};
-
-}
-
-function buildCarnotStates(Th, Tc) {
-    const V1=1.2;
-    const V2=2.2;
-    const ratio=Math.pow(Th/Tc,1/(gamma-1));
-    const Vc=V2*ratio;
-    const Vd=V1*ratio;
-
-    const A={V:V1,P:Th/V1};
-    const B={V:V2,P:Th/V2};
-    const C={V:Vc,P:Tc/Vc};
-    const D={V:Vd,P:Tc/Vd};
-    return {A,B,C,D};
-}
-
-function sampleCurve(vStart,vEnd,count,fn){
-    const pts=[];
-    for(let i=0;i<=count;i++){
-        const t=i/count;
-        const v=vStart+(vEnd-vStart)*t;
-        pts.push({V:v,P:fn(v)});
-
-    }
-    return pts;
-}
-
-function drawCurve(ctx,points,bounds,w,h,pad,color,width=2.4){
-    ctx.strokeStyle=color;
-    ctx.lineWidth=width;
-    ctx.beginPath();
-    points.forEach((pt,i)=>{
-        const m=mapToCanvas(pt.V,pt.P,bounds,w,h,pad);
-        if(i===0){
-            ctx.moveTo(m.x,m.y);
-        }
-        else ctx.lineTo(m.x,m.y);
+if(forwardBtn && reverseBtn){
+    forwardBtn.addEventListener("click",()=>{
+        forwardBtn.classList.add("active");
+        reverseBtn.classList.remove("active");
     });
-    ctx.stroke();
+    reverseBtn.addEventListener("click",()=>{
+        reverseBtn.classList.add("active");
+        forwardBtn.classList.remove("active");
+    });
 }
 
-function drawStageLabel(ctx,text,point,bounds,w,h,pad,color){
-    const m=mapToCanvas(point.V,point.P,bounds,w,h,pad);
-    ctx.fillStyle=color;
-    ctx.font='14px Arial';
-    ctx.fillText(text,m.x+8,m.y-8);
-}
-function renderCarnot(){
-    const w=carnotCanvas.width;
-    const h=carnotCanvas.height;
-    const pad=56;
-    let Th=Number(thSlider.value);
-    let Tc=Number(tcSlider.value);
-    if(Tc>=Th){
-        Tc=Th-1;
-        tcSlider.value=String(Tc);
-        tcValue.textContent=String(Tc);
-    }
-    const {A,B,C,D}=buildCarnotStates(Th,Tc);
-
-    const kAB=B.P*Math.pow(B.V,gamma);
-    const kDA=D.P*Math.pow(D.V,gamma);
-    const isoHot=sampleCurve(A.V,B.V,120,v=>Th/v);
-    const adiExp=sampleCurve(B.V,C.V,120,v=>kAB/Math.pow(v,gamma));
-    const isoCold=sampleCurve(C.V,D.V,120,v=>Tc/v);
-    const adiComp=sampleCurve(D.V,A.V,120,v=>kDA/Math.pow(v,gamma));
-
-    const allPts=[...isoHot,...adiExp,...isoCold,...adiComp];
-    const vVals=allPts.map(p=>p.V);
-    const pVals=allPts.map(p=>p.P);
-
-    const bounds={
-        vMin:Math.min(...vVals)*0.9,
-        vMax:Math.max(...vVals)*1.05,
-        pMin:Math.min(...pVals)*0.8,
-        pMax:Math.max(...pVals)*1.1
-    };
-    cctx.clearRect(0, 0, w, h);
-    drawGrid(cctx,w,h,pad);
-    drawAxes(cctx,w,h,pad,'Volume (V)','Pressure (P)');
-    drawCurve(cctx,isoHot,bounds,w,h,pad,'#00e5ff');
-    drawCurve(cctx,adiExp,bounds,w,h,pad,'#ffb300');
-    drawCurve(cctx,isoCold,bounds,w,h,pad,'#39ff14');
-    drawCurve(cctx,adiComp,bounds,w,h,pad,'#ff4d6d');
-    
-  drawStageLabel(cctx, "1) Isothermal Expansion", isoHot[Math.floor(isoHot.length * 0.5)], bounds, w, h, pad, "#7ee8ff");
-  drawStageLabel(cctx, "2) Adiabatic Expansion", adiExp[Math.floor(adiExp.length * 0.5)], bounds, w, h, pad, "#ffd27a");
-  drawStageLabel(cctx, "3) Isothermal Compression", isoCold[Math.floor(isoCold.length * 0.5)], bounds, w, h, pad, "#7dff82");
-  drawStageLabel(cctx, "4) Adiabatic Compression", adiComp[Math.floor(adiComp.length * 0.5)], bounds, w, h, pad, "#ff8ba0");
-
-  const eta=1-(Tc/Th);
-  carnotOutput.innerHTML=
-  "Th = "+Th+" K | Tc = "+Tc+" K | Efficiency (η) = 1-(Tc/Th) = "+eta.toFixed(4)+" ("+(eta*100).toFixed(2)+"%)";
-
+if(bridgeSvg){
+    renderBridge();
 }
 
-thSlider.addEventListener("input",()=>{
-    thValue.textContent=thSlider.value;
-    renderCarnot();
-});
-tcSlider.addEventListener("input",()=>{
-    tcValue.textContent=tcSlider.value;
-    renderCarnot();
-});
-renderCarnot();
+
+
 
