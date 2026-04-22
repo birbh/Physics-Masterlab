@@ -3,18 +3,21 @@
 
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="description" content="Interactive Physics Lab: Carnot Cycle, Wheatstone Bridge, and PN Junction Diode Simulator">
+    <link rel="icon" href="data:,">
     <title>Physics master lab</title>
     <link rel="stylesheet" href="app.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-            
 </head>
 
 <body>
     <div class="app">
         <aside class="sidebar">
             <h1>Physics Master Lab</h1>
+            <p style="font-size:12px;color:#aaa;margin-bottom:10px;">
+            Interactive simulations for core physics experiments
+            </p>
             <button class="nav-btn active" data-target="lab-carnot">Thermodynamics</button>
             <button class="nav-btn" data-target="lab-bridge">Wheatstone Bridge</button>
             <button class="nav-btn" data-target="lab-diode">PN Junction Diode</button>
@@ -23,13 +26,13 @@
             <section id="lab-carnot" class="lab active">
                 <h2>Carnot Cycle(PV Diagram)</h2>
                 <iframe class="geogebra-frame" src="https://www.geogebra.org/classic/n7zkhneh?embed" width="800" height="600" allowfullscreen style="border: 1px solid #e4e4e4;border-radius: 4px;" frameborder="0"></iframe>
+                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
                 <div class="note">
                     <h3>Concept Note</h3>
                     <p>
                 For an ideal Carnot engine, efficiency is &eta; = \(1- \frac{T_c}{T_h} \). 
                 Higher \( T_h \) and lower \( T_c \) increase efficiency.
                 </p>
-
                 </div>
             </section>
             <section id="lab-bridge" class="lab">
@@ -41,6 +44,7 @@
                     </label>
                     <span id="rxValue">200</span>
                 </div>
+                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
                 <div id="bridgeOutput" class="output">
                 </div>
                 <div class="note">
@@ -51,12 +55,22 @@
             <section id="lab-diode" class="lab">
                 <h2>PN Junction Diode I-V Characteristics</h2>
                 <canvas id="diodeCanvas" width="900" height="450"></canvas>
+                <div class="legend" style="display:flex;gap:15px;margin:10px 0;font-size:13px;">
+                  <span style="color:#00e5ff;">■ Theoretical Curve</span>
+                  <span style="color:#ff4d6d;">■ Operating Point</span>
+                  <span style="color:#ffb300;">■ Knee Voltage</span>
+                  <span style="color:#00ff88;">■ Breakdown Region</span>
+                </div>
                 <div class="controls">
                     <label>Bias Mode:
                         <button id="forwardBtn" class="mode-btn active">Forward</button>
                         <button id="reverseBtn" class="mode-btn">Reverse</button>
                     </label>
                 </div>
+                <div style="font-size:12px;color:#aaa;margin-top:8px;">
+                Use sliders to vary voltage, switch bias mode, and observe current response. Enable log scale for detailed analysis.
+                </div>
+                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
                 <div id="diodeOutput" class="output"></div>
                 <div class="note">
                     <h3>Concept Note</h3>
@@ -65,13 +79,12 @@
                         depletion region and keeps current very small.</p>
                 </div>
             </section>
+            <footer style="text-align:center;font-size:12px;color:#666;margin-top:20px;">
+            Built as an interactive physics learning tool • PN Junction, Thermodynamics, and Circuits
+            </footer>
         </main>
     </div>
     <script src="app.js"></script>
 </body>
 
 </html>
-
-
-
-
