@@ -41,6 +41,7 @@ This project brings together three core laboratory experiments:
 
 ### Carnot Cycle
 - Embedded PV diagram visualization
+- Integration of geogebra
 - Conceptual explanation of thermodynamic processes
 
 
@@ -53,7 +54,7 @@ This project brings together three core laboratory experiments:
 - GeoGebra Embed – Carnot cycle visualization  
 
 
-## ⚙️ How to Run
+## How to Run
 
 1. Clone the repository:
    ```
