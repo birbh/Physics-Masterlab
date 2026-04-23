@@ -478,4 +478,3 @@ animateBtn.addEventListener("click", () => {
 if (diodeCanvas) {
     renderDiode();
 }
-
