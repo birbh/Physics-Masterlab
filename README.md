@@ -49,7 +49,7 @@ This project brings together three core laboratory experiments:
 
 - HTML5 – Structure  
 - CSS3 – Styling and layout  
-- JavaScript (Vanilla) – Simulation logic and rendering  
+- JavaScript  – Simulation logic and rendering  
 - Canvas API – Graph plotting and visualization  
 - GeoGebra Embed – Carnot cycle visualization  
 
