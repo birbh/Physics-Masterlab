@@ -14,52 +14,54 @@
 <body>
     <div class="app">
         <aside class="sidebar">
-            <h1>Physics Master Lab</h1>
-            <p style="font-size:12px;color:#aaa;margin-bottom:10px;">
-            Interactive simulations for core physics experiments
-            </p>
+            <div class="sidebar-header">
+                <h1>Physics Master Lab</h1>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <p class="sidebar-subtitle">Simple simulations for core physics experiments</p>
             <button class="nav-btn active" data-target="lab-carnot">Thermodynamics</button>
             <button class="nav-btn" data-target="lab-bridge">Wheatstone Bridge</button>
             <button class="nav-btn" data-target="lab-diode">PN Junction Diode</button>
         </aside>
         <main class="main">
             <section id="lab-carnot" class="lab active">
-                <h2>Carnot Cycle(PV Diagram)</h2>
-                <iframe class="geogebra-frame" src="https://www.geogebra.org/classic/n7zkhneh?embed" width="800" height="600" allowfullscreen style="border: 1px solid #e4e4e4;border-radius: 4px;" frameborder="0"></iframe>
-                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
+                <h2>Carnot Cycle (PV Diagram)</h2>
+                <iframe class="geogebra-frame" src="https://www.geogebra.org/classic/n7zkhneh?embed" width="800" height="600" allowfullscreen frameborder="0"></iframe>
+                <hr class="section-divider">
                 <div class="note">
                     <h3>Concept Note</h3>
                     <p>
-                For an ideal Carnot engine, efficiency is &eta; = \(1- \frac{T_c}{T_h} \). 
-                Higher \( T_h \) and lower \( T_c \) increase efficiency.
-                </p>
+                        Efficiency of an ideal Carnot engine is &eta; = \(1- \frac{T_c}{T_h} \). Higher \(T_h\) and lower \(T_c\) give better efficiency.
+                    </p>
                 </div>
             </section>
             <section id="lab-bridge" class="lab">
                 <h2>Wheatstone Bridge</h2>
-                <svg id="bridgeSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450" style="background:#0b0f15;border:1px solid #273244;border-radius:10px;margin-bottom:14px;display:block;"></svg>
+                <svg id="bridgeSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450"></svg>
                 <div class="controls">
                     <label>Rx (Ω):
                         <input type="range" id="rxSlider" min="10" max="1000" value="200" />
                     </label>
                     <span id="rxValue">200</span>
                 </div>
-                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
+                <hr class="section-divider">
                 <div id="bridgeOutput" class="output">
                 </div>
                 <div class="note">
                     <h3>Concept Note</h3>
-                    <p>Balanced bridge condition: R1/R2 = R3/Rx gives Vout near zero and the galvanometer shows null deflection.</p>
+                    <p>When R1/R2 = R3/Rx, output voltage is near zero and the galvanometer stays at null.</p>
                 </div>
             </section>
             <section id="lab-diode" class="lab">
                 <h2>PN Junction Diode I-V Characteristics</h2>
                 <canvas id="diodeCanvas" width="900" height="450"></canvas>
-                <div class="legend" style="display:flex;gap:15px;margin:10px 0;font-size:13px;">
-                  <span style="color:#00e5ff;">■ Theoretical Curve</span>
-                  <span style="color:#ff4d6d;">■ Operating Point</span>
-                  <span style="color:#ffb300;">■ Knee Voltage</span>
-                  <span style="color:#00ff88;">■ Breakdown Region</span>
+                <div class="legend">
+                    <span class="legend-item legend-curve">■ Theoretical curve</span>
+                    <span class="legend-item legend-point">■ Operating point</span>
+                    <span class="legend-item legend-knee">■ Knee voltage</span>
+                    <span class="legend-item legend-breakdown">■ Breakdown region</span>
                 </div>
                 <div class="controls">
                     <label>Bias Mode:
@@ -67,21 +69,16 @@
                         <button id="reverseBtn" class="mode-btn">Reverse</button>
                     </label>
                 </div>
-                <div style="font-size:12px;color:#aaa;margin-top:8px;">
-                Use sliders to vary voltage, switch bias mode, and observe current response. Enable log scale for detailed analysis.
-                </div>
-                <hr style="border:0;border-top:1px solid #273244;margin:20px 0;">
+                <div class="helper-text">Use the controls to change voltage and bias, then observe the current response.</div>
+                <hr class="section-divider">
                 <div id="diodeOutput" class="output"></div>
                 <div class="note">
                     <h3>Concept Note</h3>
 
-                    <p>Forward bias reduces barrier and increases current rapidly after threshold. Reverse bias widens
-                        depletion region and keeps current very small.</p>
+                    <p>Forward bias increases current after threshold. Reverse bias keeps current very small until breakdown.</p>
                 </div>
             </section>
-            <footer style="text-align:center;font-size:12px;color:#666;margin-top:20px;">
-            Built as an interactive physics learning tool • PN Junction, Thermodynamics, and Circuits
-            </footer>
+            <footer class="app-footer">Interactive physics practice: thermodynamics, circuits, and semiconductors.</footer>
         </main>
     </div>
     <script src="app.js"></script>

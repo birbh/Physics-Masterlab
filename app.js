@@ -1,156 +1,215 @@
-const navButtons=document.querySelectorAll('.nav-btn');
-const labs=document.querySelectorAll('.lab');
-navButtons.forEach(btn=>{
-    btn.addEventListener('click',()=>{
-        navButtons.forEach(b=>b.classList.remove('active'));
-        labs.forEach(l=>l.classList.remove('active'));
+// Theme toggle functionality
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.querySelector('.theme-icon');
+
+// Initialize theme from localStorage or system preference
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '☀️';
+    } else {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '🌙';
+    }
+    // Re-render visualizations when theme changes
+    setTimeout(() => {
+        if (rxSlider) renderBridge();
+        if (diodeCanvas) renderDiode();
+    }, 0);
+}
+
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+    });
+}
+
+initTheme();
+
+// Helper function to get theme-aware colors
+function getThemeColors() {
+    const isDarkMode = !document.body.classList.contains('light-mode');
+    return {
+        bg: isDarkMode ? '#0b0f15' : '#f5f5f5',
+        text: isDarkMode ? '#f5f7fa' : '#1a1a1a',
+        accent: isDarkMode ? '#00e5ff' : '#0066cc',
+        accent2: isDarkMode ? '#ff4d6d' : '#d9534f',
+        power: isDarkMode ? '#ffb300' : '#ff6600',
+        node: isDarkMode ? '#00e5ff' : '#0066cc',
+        resistor: isDarkMode ? '#f5f7fa' : '#333333',
+        wire: isDarkMode ? '#cfd8e3' : '#666666',
+        dark: isDarkMode ? '#0f141d' : '#ffffff',
+        balancedOk: isDarkMode ? '#39ff14' : '#009900',
+        canvasBg: isDarkMode ? '#000000' : '#ffffff'
+    };
+}
+
+const navButtons = document.querySelectorAll('.nav-btn');
+const labs = document.querySelectorAll('.lab');
+navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        navButtons.forEach(b => b.classList.remove('active'));
+        labs.forEach(l => l.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(btn.dataset.target).classList.add('active');
     });
 });
-const rxSlider=document.getElementById('rxSlider');
-const rxValue=document.getElementById('rxValue');
-const bridgeSvg=document.getElementById('bridgeSvg');
-const bridgeOutput=document.getElementById('bridgeOutput');
 
-function renderBridge(){
-    const rx=Number(rxSlider.value);
+const rxSlider = document.getElementById('rxSlider');
+const rxValue = document.getElementById('rxValue');
+const bridgeSvg = document.getElementById('bridgeSvg');
+const bridgeOutput = document.getElementById('bridgeOutput');
 
-    const vin=5;
-    const r1=100;
-    const r2=100;
-    const r3=100;
-    const balanceRx=(r2*r3)/r1;
-    const vout=vin*((r2/(r1+r2))-(rx/(r3+rx)));
-    const balanceError=rx-balanceRx;
-    const needleAngle=Math.max(-0.55,Math.min(0.55,vout*0.25));
+function renderBridge() {
+    const rx = Number(rxSlider.value);
 
-    const width=900;
-    const height=450;
-    const A={x:220,y:120};
-    const B={x:720,y:120};
-    const C={x:220,y:330};
-    const D={x:720,y:330};
-    const M={x:470,y:225};
-    const T={x:470,y:120};
-    const N={x:470,y:330};
+    const vin = 5;
+    const r1 = 100;
+    const r2 = 100;
+    const r3 = 100;
+    const balanceRx = (r2 * r3) / r1;
+    const vout = vin * ((r2 / (r1 + r2)) - (rx / (r3 + rx)));
+    const balanceError = rx - balanceRx;
+    const needleAngle = Math.max(-0.55, Math.min(0.55, vout * 0.25));
 
-    const resistorTopLeft=svgResistor(A.x,A.y, T.x,A.y);
-    const resistorTopRight=svgResistor(T.x,B.y, B.x,B.y);
-    const resistorBottomLeft=svgResistor(C.x,C.y, N.x,C.y);
-    const resistorBottomRight=svgResistor(N.x,D.y, D.x,D.y);
-    const needleX=M.x;
-    const needleY=M.y;
-    const needleLen=18;
-    const armGap=35;
-    const balanceAngleDeg=needleAngle*180/Math.PI;
+    const width = 900;
+    const height = 450;
+    const A = { x: 220, y: 120 };
+    const B = { x: 720, y: 120 };
+    const C = { x: 220, y: 330 };
+    const D = { x: 720, y: 330 };
+    const M = { x: 470, y: 225 };
+    const T = { x: 470, y: 120 };
+    const N = { x: 470, y: 330 };
+
+    const resistorTopLeft = svgResistor(A.x, A.y, T.x, A.y);
+    const resistorTopRight = svgResistor(T.x, B.y, B.x, B.y);
+    const resistorBottomLeft = svgResistor(C.x, C.y, N.x, C.y);
+    const resistorBottomRight = svgResistor(N.x, D.y, D.x, D.y);
+    const needleLen = 18;
+    const armGap = 35;
+
+    const colors = getThemeColors();
 
     bridgeSvg.innerHTML = `
       <defs>
         <marker id="bridgeArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 z" fill="#00e5ff"></path>
+          <path d="M0,0 L8,4 L0,8 z" fill="${colors.accent}"></path>
         </marker>
         <marker id="smallArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 z" fill="#ff4d6d"></path>
+          <path d="M0,0 L8,4 L0,8 z" fill="${colors.accent2}"></path>
         </marker>
       </defs>
-      <rect x="0" y="0" width="${width}" height="${height}" fill="#0b0f15" rx="10"></rect>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="${colors.bg}" rx="10"></rect>
 
-      <text x="65" y="190" fill="#ffb300" font-family="Space Grotesk, sans-serif" font-size="20">Vin</text>
-      <line x1="120" y1="150" x2="120" y2="290" stroke="#ffb300" stroke-width="3"></line>
-      <rect x="112" y="180" width="18" height="8" fill="#ffffff"></rect>
-      <rect x="108" y="206" width="34" height="8" fill="#ffffff"></rect>
+      <text x="65" y="190" fill="${colors.power}" font-family="Space Grotesk, sans-serif" font-size="20">Vin</text>
+      <line x1="120" y1="150" x2="120" y2="290" stroke="${colors.power}" stroke-width="3"></line>
+      <rect x="112" y="180" width="18" height="8" fill="${colors.wire}"></rect>
+      <rect x="108" y="206" width="34" height="8" fill="${colors.wire}"></rect>
 
-      <polyline points="120,150 120,120 ${A.x},${A.y}" fill="none" stroke="#ffb300" stroke-width="3"></polyline>
-      <polyline points="120,290 120,390 ${D.x},390 ${D.x},${D.y}" fill="none" stroke="#ffb300" stroke-width="3"></polyline>
+      <polyline points="120,150 120,120 ${A.x},${A.y}" fill="none" stroke="${colors.power}" stroke-width="3"></polyline>
+      <polyline points="120,290 120,390 ${D.x},390 ${D.x},${D.y}" fill="none" stroke="${colors.power}" stroke-width="3"></polyline>
 
-      <line x1="${A.x}" y1="${A.y}" x2="${C.x}" y2="${C.y}" stroke="#cfd8e3" stroke-width="3"></line>
-      <line x1="${B.x}" y1="${B.y}" x2="${D.x}" y2="${D.y}" stroke="#cfd8e3" stroke-width="3"></line>
+      <line x1="${A.x}" y1="${A.y}" x2="${C.x}" y2="${C.y}" stroke="${colors.wire}" stroke-width="3"></line>
+      <line x1="${B.x}" y1="${B.y}" x2="${D.x}" y2="${D.y}" stroke="${colors.wire}" stroke-width="3"></line>
 
-      <circle cx="${A.x}" cy="${A.y}" r="5" fill="#00e5ff"></circle>
-      <circle cx="${B.x}" cy="${B.y}" r="5" fill="#00e5ff"></circle>
-      <circle cx="${C.x}" cy="${C.y}" r="5" fill="#00e5ff"></circle>
-      <circle cx="${D.x}" cy="${D.y}" r="5" fill="#00e5ff"></circle>
-    <circle cx="${T.x}" cy="${T.y}" r="5" fill="#00e5ff"></circle>
-    <circle cx="${N.x}" cy="${N.y}" r="5" fill="#00e5ff"></circle>
-      <circle cx="${M.x}" cy="${M.y}" r="5" fill="#00e5ff"></circle>
+      <circle cx="${A.x}" cy="${A.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${B.x}" cy="${B.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${C.x}" cy="${C.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${D.x}" cy="${D.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${T.x}" cy="${T.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${N.x}" cy="${N.y}" r="5" fill="${colors.node}"></circle>
+      <circle cx="${M.x}" cy="${M.y}" r="5" fill="${colors.node}"></circle>
 
-      <path d="${resistorTopLeft}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
-      <path d="${resistorTopRight}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
-      <path d="${resistorBottomLeft}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
-      <path d="${resistorBottomRight}" stroke="#f5f7fa" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorTopLeft}" stroke="${colors.resistor}" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorTopRight}" stroke="${colors.resistor}" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorBottomLeft}" stroke="${colors.resistor}" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
+      <path d="${resistorBottomRight}" stroke="${colors.resistor}" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path>
 
-    <line x1="${T.x}" y1="${T.y}" x2="${M.x}" y2="${M.y-armGap}" stroke="#ff4d6d" stroke-width="3"></line>
-    <line x1="${M.x}" y1="${M.y+armGap}" x2="${N.x}" y2="${N.y}" stroke="#ff4d6d" stroke-width="3"></line>
-      <circle cx="${M.x}" cy="${M.y}" r="28" fill="#0f141d" stroke="#ff4d6d" stroke-width="3"></circle>
-      <text x="${M.x-8}" y="${M.y+6}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">G</text>
-      <line x1="${M.x}" y1="${M.y}" x2="${M.x + needleLen*Math.cos(needleAngle)}" y2="${M.y + needleLen*Math.sin(needleAngle)}" stroke="#00e5ff" stroke-width="3"></line>
+      <line x1="${T.x}" y1="${T.y}" x2="${M.x}" y2="${M.y - armGap}" stroke="${colors.accent2}" stroke-width="3"></line>
+      <line x1="${M.x}" y1="${M.y + armGap}" x2="${N.x}" y2="${N.y}" stroke="${colors.accent2}" stroke-width="3"></line>
+      <circle cx="${M.x}" cy="${M.y}" r="28" fill="${colors.dark}" stroke="${colors.accent2}" stroke-width="3"></circle>
+      <text x="${M.x - 8}" y="${M.y + 6}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">G</text>
+      <line x1="${M.x}" y1="${M.y}" x2="${M.x + needleLen * Math.cos(needleAngle)}" y2="${M.y + needleLen * Math.sin(needleAngle)}" stroke="${colors.accent}" stroke-width="3"></line>
 
-      <text x="${A.x-16}" y="${A.y-12}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">A</text>
-      <text x="${B.x+8}" y="${B.y-12}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">B</text>
-      <text x="${C.x-16}" y="${C.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">C</text>
-      <text x="${D.x+8}" y="${D.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">D</text>
+      <text x="${A.x - 16}" y="${A.y - 12}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">A</text>
+      <text x="${B.x + 8}" y="${B.y - 12}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">B</text>
+      <text x="${C.x - 16}" y="${C.y + 28}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">C</text>
+      <text x="${D.x + 8}" y="${D.y + 28}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">D</text>
 
-      <text x="${A.x+74}" y="${A.y-14}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R1</text>
-      <text x="${B.x-46}" y="${B.y-14}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R2</text>
-      <text x="${C.x+74}" y="${C.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">R3</text>
-      <text x="${D.x-46}" y="${D.y+28}" fill="#f5f7fa" font-family="Space Grotesk, sans-serif" font-size="18">Rx</text>
+      <text x="${A.x + 74}" y="${A.y - 14}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">R1</text>
+      <text x="${B.x - 46}" y="${B.y - 14}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">R2</text>
+      <text x="${C.x + 74}" y="${C.y + 28}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">R3</text>
+      <text x="${D.x - 46}" y="${D.y + 28}" fill="${colors.text}" font-family="Space Grotesk, sans-serif" font-size="18">Rx</text>
 
-      <text x="${M.x-48}" y="${M.y-38}" fill="#ff4d6d" font-family="Space Grotesk, sans-serif" font-size="16">Galvanometer</text>
+      <text x="${M.x - 48}" y="${M.y - 38}" fill="${colors.accent2}" font-family="Space Grotesk, sans-serif" font-size="16">Galvanometer</text>
     `;
 
     // Balance indicator
-    const balanced=Math.abs(vout)<0.01;
-    bridgeOutput.innerHTML=
-        'Vin = '+vin.toFixed(2)+' V | R1 = '+r1+' Ω | R2 = '+r2+' Ω | R3 = '+r3+' Ω | Rx = '+rx+' Ω | Vout = '+vout.toFixed(4)+' V | '+
-        (balanced ? '<span style="color:#39ff14">Balanced: galvanometer at zero</span>' : '<span style="color:#ffb300">Unbalanced: needle deflects</span>')+
-        '<br>Balance Rx = '+balanceRx.toFixed(2)+' Ω | Error = '+balanceError.toFixed(2)+' Ω';
+    const balanced = Math.abs(vout) < 0.01;
+    const balancedColor = balanced ? colors.balancedOk : colors.power;
+    bridgeOutput.innerHTML =
+        'Vin = ' + vin.toFixed(2) + ' V | R1 = ' + r1 + ' Ω | R2 = ' + r2 + ' Ω | R3 = ' + r3 + ' Ω | Rx = ' + rx + ' Ω | Vout = ' + vout.toFixed(4) + ' V | ' +
+        (balanced ? '<span style="color:' + balancedColor + '">Balanced: galvanometer at zero</span>' : '<span style="color:' + colors.power + '">Unbalanced: needle deflects</span>') +
+        '<br>Balance Rx = ' + balanceRx.toFixed(2) + ' Ω | Error = ' + balanceError.toFixed(2) + ' Ω';
 }
 
-function svgResistor(x1,y1,x2,y2){
-    const steps=8;
-    const lead=30;
-    const startX=x1+lead;
-    const endX=x2-lead;
-    const width=endX-startX;
-    const amp=14;
-    let d=`M ${x1} ${y1} L ${startX} ${y1}`;
-    for(let i=0;i<steps;i++){
-        const t0=startX + (width/steps)*i;
-        const t1=startX + (width/steps)*(i+0.5);
-        const t2=startX + (width/steps)*(i+1);
-        const yA = i%2===0 ? y1-amp : y1+amp;
+function svgResistor(x1, y1, x2, y2) {
+    const steps = 8;
+    const lead = 30;
+    const startX = x1 + lead;
+    const endX = x2 - lead;
+    const width = endX - startX;
+    const amp = 14;
+    let d = `M ${x1} ${y1} L ${startX} ${y1}`;
+    for (let i = 0; i < steps; i++) {
+        const t1 = startX + (width / steps) * (i + 0.5);
+        const t2 = startX + (width / steps) * (i + 1);
+        const yA = i % 2 === 0 ? y1 - amp : y1 + amp;
         d += ` L ${t1} ${yA} L ${t2} ${y1}`;
     }
     d += ` L ${x2} ${y2}`;
     return d;
 }
 
-if(rxSlider && rxValue && bridgeSvg){
-    rxSlider.addEventListener('input',()=>{
-        rxValue.textContent=rxSlider.value;
+if (rxSlider && rxValue && bridgeSvg) {
+    rxSlider.addEventListener('input', () => {
+        rxValue.textContent = rxSlider.value;
         renderBridge();
     });
 }
-const forwardBtn=document.getElementById('forwardBtn');
-const reverseBtn=document.getElementById('reverseBtn');
-if(forwardBtn && reverseBtn){
-    forwardBtn.addEventListener("click",()=>{
+
+const forwardBtn = document.getElementById('forwardBtn');
+const reverseBtn = document.getElementById('reverseBtn');
+if (forwardBtn && reverseBtn) {
+    forwardBtn.addEventListener("click", () => {
         forwardBtn.classList.add("active");
         reverseBtn.classList.remove("active");
+        biasMode = "forward";
         tracePoints = [];
+        renderDiode();
     });
-    reverseBtn.addEventListener("click",()=>{
+    reverseBtn.addEventListener("click", () => {
         reverseBtn.classList.add("active");
         forwardBtn.classList.remove("active");
+        biasMode = "reverse";
         tracePoints = [];
+        renderDiode();
     });
 }
 
-if(bridgeSvg){
+if (bridgeSvg) {
     renderBridge();
 }
-
 
 const diodeCanvas = document.getElementById("diodeCanvas");
 const diodeOutput = document.getElementById("diodeOutput");
@@ -201,20 +260,6 @@ let zoomFactor = Number(zoomSlider.value);
 let animating = false;
 let tracePoints = [];
 
-if (forwardBtn && reverseBtn) {
-    forwardBtn.addEventListener("click", () => {
-        biasMode = "forward";
-        tracePoints = [];
-        renderDiode();
-    });
-
-    reverseBtn.addEventListener("click", () => {
-        biasMode = "reverse";
-        tracePoints = [];
-        renderDiode();
-    });
-}
-
 function diodeCurrent(V) {
     let Is, n, Vt = 0.026, Vbr = -1.2;
 
@@ -238,7 +283,8 @@ function diodeCurrent(V) {
 }
 
 function drawAxes(ctx, width, height) {
-    ctx.strokeStyle = "#ffffff";
+    const colors = getThemeColors();
+    ctx.strokeStyle = colors.text;
     ctx.lineWidth = 2;
 
     ctx.beginPath();
@@ -252,7 +298,7 @@ function drawAxes(ctx, width, height) {
     ctx.stroke();
 
     // axis labels
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = colors.text;
     ctx.font = "14px sans-serif";
 
     // Voltage axis (X)
@@ -270,19 +316,20 @@ function drawAxes(ctx, width, height) {
     ctx.stroke();
 
     // quadrant hints
-    ctx.fillStyle = "#aaa";
+    ctx.fillStyle = colors.muted || (colors.text === '#f5f7fa' ? '#aaa' : '#999');
     ctx.font = "12px sans-serif";
-    ctx.fillText("Forward Bias", width/2 + 80, height/2 - 80);
-    ctx.fillText("Reverse Bias", width/2 - 220, height/2 + 80);
+    ctx.fillText("Forward Bias", width / 2 + 80, height / 2 - 80);
+    ctx.fillText("Reverse Bias", width / 2 - 220, height / 2 + 80);
 
     if (logToggle.checked) {
-        ctx.fillStyle = "#aaa";
+        ctx.fillStyle = colors.muted || (colors.text === '#f5f7fa' ? '#aaa' : '#999');
         ctx.fillText("Log Scale Active", width - 180, 30);
     }
 }
 
 function plotCurve(ctx, width, height) {
-    ctx.strokeStyle = "#00e5ff";
+    const colors = getThemeColors();
+    ctx.strokeStyle = colors.accent;
     ctx.lineWidth = 2;
     ctx.beginPath();
 
@@ -313,9 +360,9 @@ function plotCurve(ctx, width, height) {
     ctx.globalAlpha = 0.1;
     ctx.fillStyle = biasMode === "forward" ? "#8e44ad" : "#555";
     ctx.fillRect(
-        biasMode === "forward" ? width/2 : 0,
+        biasMode === "forward" ? width / 2 : 0,
         0,
-        width/2,
+        width / 2,
         height
     );
     ctx.globalAlpha = 1;
@@ -338,14 +385,14 @@ function plotCurve(ctx, width, height) {
     let kneeY = height / 2 - diodeCurrent(kneeV) * zoomFactor;
 
     // draw knee point
-    ctx.fillStyle = "#ffb300";
+    ctx.fillStyle = colors.power;
     ctx.beginPath();
     ctx.arc(kneeX, kneeY, 5, 0, Math.PI * 2);
     ctx.fill();
 
     // draw vertical dashed line
     ctx.setLineDash([5, 5]);
-    ctx.strokeStyle = "#ffb300";
+    ctx.strokeStyle = colors.power;
     ctx.beginPath();
     ctx.moveTo(kneeX, height - 20);
     ctx.lineTo(kneeX, 20);
@@ -353,7 +400,7 @@ function plotCurve(ctx, width, height) {
     ctx.setLineDash([]);
 
     // label
-    ctx.fillStyle = "#ffb300";
+    ctx.fillStyle = colors.power;
     ctx.font = "12px sans-serif";
     ctx.fillText("Knee ≈ " + kneeV.toFixed(2) + "V", kneeX + 10, kneeY - 10);
 
@@ -361,20 +408,21 @@ function plotCurve(ctx, width, height) {
     const Vbr = -1.2;
     let brX = width / 2 + (Vbr / 2) * 300;
 
-    ctx.setLineDash([5,5]);
-    ctx.strokeStyle = "#00ff88";
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = colors.balancedOk;
     ctx.beginPath();
     ctx.moveTo(brX, height - 20);
     ctx.lineTo(brX, 20);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = "#00ff88";
+    ctx.fillStyle = colors.balancedOk;
     ctx.font = "12px sans-serif";
     ctx.fillText("Breakdown Region", brX - 70, 40);
 }
 
 function drawPoint(ctx, width, height, V) {
+    const colors = getThemeColors();
     let I = diodeCurrent(V);
 
     let scale = biasMode === "forward" ? zoomFactor : zoomFactor * 3;
@@ -382,7 +430,7 @@ function drawPoint(ctx, width, height, V) {
     let x = width / 2 + (V / 2) * 300;
     let y = height / 2 - displayI * scale;
 
-    ctx.fillStyle = "#ff4d6d";
+    ctx.fillStyle = colors.accent2;
     ctx.beginPath();
     ctx.arc(x, y, 5, 0, Math.PI * 2);
     ctx.fill();
@@ -411,7 +459,8 @@ function renderDiode() {
 
     // draw trace
     if (tracePoints.length > 1) {
-        ctx.strokeStyle = "#ff4d6d";
+        const colors = getThemeColors();
+        ctx.strokeStyle = colors.accent2;
         ctx.lineWidth = 2;
         ctx.beginPath();
         tracePoints.forEach((p, i) => {
@@ -478,3 +527,4 @@ animateBtn.addEventListener("click", () => {
 if (diodeCanvas) {
     renderDiode();
 }
+
